@@ -1,0 +1,28 @@
+# Claude / context files
+CLAUDE.md
+CONTEXT*.md
+
+# Test output
+data/output/
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Virtual environment
+.venv/
+
+# pytest
+.pytest_cache/
+__pycache__/
+**/__pycache__/
+*.pyc
+
+# Coverage
+.coverage
+htmlcov/
+
+# IDEs
+.vscode/
+.idea/

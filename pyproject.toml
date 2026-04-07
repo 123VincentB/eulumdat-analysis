@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eulumdat-analysis"
+version = "1.0.0"
+description = "Practical photometric calculations on EULUMDAT data"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "123VincentB" }
+]
+keywords = ["photometry", "eulumdat", "ldt", "lighting", "beam angle", "half angle"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "eulumdat-py>=1.0.0",
+    "scipy>=1.7",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://github.com/123VincentB/eulumdat-analysis"
+Repository = "https://github.com/123VincentB/eulumdat-analysis"
+Changelog = "https://github.com/123VincentB/eulumdat-analysis/blob/main/CHANGELOG.md"
+"Bug Tracker" = "https://github.com/123VincentB/eulumdat-analysis/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
