@@ -14,6 +14,7 @@ Developed in an ISO 17025 accredited photometry laboratory.
 ## Features
 
 - `half_angle` — half-angle at half maximum (HAHM) per C-plane, with CubicSpline interpolation
+- `resample` — resample a `Ldt` to a coarser angular resolution (linear interpolation, ISO 17025 traceable)
 - Handles all ISYM symmetry types including full rotational symmetry (ISYM=1)
 - Automatically rejects multi-peak distributions (secondary peak prominence > 5 % of I_max)
 - Returns `None` for undefined cases — never raises unhandled exceptions
@@ -40,16 +41,19 @@ pip install eulumdat-analysis
 
 ```python
 from pyldt import LdtReader
-from ldt_analysis import half_angle
+from ldt_analysis import half_angle, resample
 
 ldt = LdtReader.read("luminaire.ldt")
 
+# Half-angle at half maximum per C-plane
 result = half_angle(ldt, [0.0, 90.0, 180.0, 270.0])
 print(result)
 # {0.0: 35.4, 90.0: 36.1, 180.0: 35.8, 270.0: 36.0}
-```
 
-The function returns the **absolute gamma angle** (degrees from nadir) where intensity drops to 50 % of the C-plane maximum, searching from `γ_max` toward 90°.
+# Resample a raw 2.5°×1° measurement to standard 15°×5°
+ldt_raw = LdtReader.read("luminaire_raw.ldt")   # 144 C-planes × 181 γ-angles
+ldt_15x5 = resample(ldt_raw)                    # → 24 C-planes × 37 γ-angles
+```
 
 ---
 
@@ -57,7 +61,8 @@ The function returns the **absolute gamma angle** (degrees from nadir) where int
 
 | File | Description |
 |------|-------------|
-| [`examples/01_basic_usage.md`](https://github.com/123VincentB/eulumdat-analysis/blob/main/examples/01_basic_usage.md) | Basic usage, return values, FWHM |
+| [`examples/01_basic_usage.md`](https://github.com/123VincentB/eulumdat-analysis/blob/main/examples/01_basic_usage.md) | `half_angle` — basic usage, return values, FWHM |
+| [`examples/02_resample.md`](https://github.com/123VincentB/eulumdat-analysis/blob/main/examples/02_resample.md) | `resample` — resolution resampling, guards, preserved fields |
 
 ---
 
@@ -68,11 +73,14 @@ eulumdat-analysis/
 ├── src/
 │   └── ldt_analysis/
 │       ├── __init__.py
-│       └── half_angle.py
+│       ├── half_angle.py
+│       └── resample.py
 ├── examples/
-│   └── 01_basic_usage.md
+│   ├── 01_basic_usage.md
+│   └── 02_resample.md
 ├── tests/
-│   └── test_half_angle.py
+│   ├── test_half_angle.py
+│   └── test_resample.py
 ├── CHANGELOG.md
 ├── LICENSE
 └── README.md
@@ -96,6 +104,17 @@ eulumdat-analysis/
 | `I_max = 0` (dark or inactive plane) | `None` |
 | Intensity never drops to half-max within [γ_max, 90°] | `None` |
 | Multi-peak distribution | `None` |
+
+---
+
+## `resample` — return values
+
+| Case | Return value |
+|------|-------------|
+| Success | `Ldt` — new object at target resolution |
+| `c_step <= 0` or `g_step <= 0` | `None` |
+| Source has fewer than 2 C-planes or γ-angles | `None` |
+| Target finer than source | `None` |
 
 ---
 
