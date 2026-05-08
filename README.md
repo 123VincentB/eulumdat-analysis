@@ -15,6 +15,10 @@ Developed in an ISO 17025 accredited photometry laboratory.
 
 - `half_angle` — half-angle at half maximum (HAHM) per C-plane, with CubicSpline interpolation
 - `resample` — resample a `Ldt` to a coarser angular resolution (linear interpolation, ISO 17025 traceable)
+- `luminous_flux` — total flux in lm/klm by trapezoidal integration (CIE 190 method)
+- `lorl_computed` — LORL in % computed from the intensity matrix
+- `dff_computed` — downward flux fraction in % computed from the intensity matrix
+- `check_photometric_consistency` — compare matrix-computed LORL and DFF against header declared values
 - Handles all ISYM symmetry types including full rotational symmetry (ISYM=1)
 - Automatically rejects multi-peak distributions (secondary peak prominence > 5 % of I_max)
 - Returns `None` for undefined cases — never raises unhandled exceptions
@@ -41,7 +45,7 @@ pip install eulumdat-analysis
 
 ```python
 from pyldt import LdtReader
-from ldt_analysis import half_angle, resample
+from ldt_analysis import half_angle, resample, luminous_flux, lorl_computed, dff_computed, check_photometric_consistency
 
 ldt = LdtReader.read("luminaire.ldt")
 
@@ -53,6 +57,13 @@ print(result)
 # Resample a raw 2.5°×1° measurement to standard 15°×5°
 ldt_raw = LdtReader.read("luminaire_raw.ldt")   # 144 C-planes × 181 γ-angles
 ldt_15x5 = resample(ldt_raw)                    # → 24 C-planes × 37 γ-angles
+
+# Flux and photometric consistency check (CIE 190)
+flux = luminous_flux(ldt)                        # e.g. 865.3 lm/klm
+lorl = lorl_computed(ldt)                        # e.g. 86.53 %
+dff  = dff_computed(ldt)                         # e.g. 99.8 %
+report = check_photometric_consistency(ldt)
+# {"lorl_header": 87.0, "lorl_computed": 86.53, "lorl_delta": -0.47, ...}
 ```
 
 ---
@@ -74,13 +85,15 @@ eulumdat-analysis/
 │   └── ldt_analysis/
 │       ├── __init__.py
 │       ├── half_angle.py
-│       └── resample.py
+│       ├── resample.py
+│       └── flux.py
 ├── examples/
 │   ├── 01_basic_usage.md
 │   └── 02_resample.md
 ├── tests/
 │   ├── test_half_angle.py
-│   └── test_resample.py
+│   ├── test_resample.py
+│   └── test_flux.py
 ├── CHANGELOG.md
 ├── LICENSE
 └── README.md
@@ -129,7 +142,7 @@ eulumdat-analysis/
 | [eulumdat-plot](https://pypi.org/project/eulumdat-plot/) | Polar intensity diagram (SVG/PNG) |
 | [eulumdat-luminance](https://pypi.org/project/eulumdat-luminance/) | Luminance table and polar diagram |
 | [eulumdat-ugr](https://pypi.org/project/eulumdat-ugr/) | UGR catalogue (CIE 117/190) |
-| **`eulumdat-analysis`** | **Beam half-angle, FWHM — this package** |
+| **`eulumdat-analysis`** | **Beam half-angle, flux integration, photometric consistency — this package** |
 | [eulumdat-report](https://pypi.org/project/eulumdat-report/) | Full photometric datasheet (HTML/PDF) |
 | [eulumdat-ies](https://pypi.org/project/eulumdat-ies/) | LDT ↔ IES LM-63-2002 conversion |
 
