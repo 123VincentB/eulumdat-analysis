@@ -14,7 +14,7 @@ def _mean_intensities(ldt: Ldt) -> list[float] | None:
 
 
 def luminous_flux(ldt: Ldt) -> float | None:
-    """Return total luminous flux in lm/klm by trapezoidal integration over the full matrix.
+    """Return total luminous flux in lm/klm by trapezoidal integration (CIE 190 method).
 
     The result is normalised to the lamp flux used in the file (cd/klm convention).
     Multiply by num_lamps * lamp_flux / 1000 to obtain absolute lumens.
