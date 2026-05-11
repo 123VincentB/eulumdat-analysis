@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.3.0] - 2026-05-11
+
+### Added
+- `luminous_flux_range(ldt, g_min, g_max)` — luminous flux integrated over an
+  arbitrary gamma window [g_min, g_max] in lm/klm, using the same CIE 190
+  trapezoidal method as `luminous_flux`. Zones partially overlapping the window
+  boundaries are split by linear interpolation of the mean intensity at the
+  boundary angle. Returns `0.0` if the window does not overlap the gamma grid,
+  `None` for invalid parameters.
+
+### Changed
+- `dff_computed` refactored to delegate to `luminous_flux_range(ldt, 0.0, 90.0)`.
+  Numerically identical to the previous implementation on all files where 90° is
+  a gamma grid point (the standard case for EULUMDAT files).
+
 ## [1.2.0] - 2026-05-08
 
 ### Added

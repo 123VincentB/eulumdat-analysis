@@ -46,34 +46,69 @@ def lorl_computed(ldt: Ldt) -> float | None:
     return phi / 10.0
 
 
-def dff_computed(ldt: Ldt) -> float | None:
-    """Return downward flux fraction computed from the intensity matrix, in %.
+def luminous_flux_range(ldt: Ldt, g_min: float, g_max: float) -> float | None:
+    """Return luminous flux integrated over the gamma window [g_min, g_max], in lm/klm.
 
-    Downward hemisphere: gamma in [0°, 90°] (nadir to horizontal).
-    Zones straddling 90° are split exactly at the boundary using the exact
-    solid angle formula: omega_down = 2*pi * |cos(gamma_k) - cos(90°)|.
-    Returns None if the total flux is zero or the matrix is empty.
+    Uses the same trapezoidal method as luminous_flux() (CIE 190).
+    Zones partially overlapping the window boundaries are split by linear
+    interpolation of the mean intensity at the boundary angle.
+
+    Parameters
+    ----------
+    ldt : Ldt
+        EULUMDAT data object (full expanded matrix expected).
+    g_min : float
+        Lower gamma boundary in degrees. Must be in [0, 180].
+    g_max : float
+        Upper gamma boundary in degrees. Must be in [0, 180] and > g_min.
+
+    Returns
+    -------
+    float
+        Flux in lm/klm over [g_min, g_max].
+    float (0.0)
+        If the window does not overlap the file's gamma grid at all.
+    None
+        If g_min >= g_max, parameters are out of [0, 180], or the matrix is empty.
     """
+    if g_min < 0.0 or g_max > 180.0 or g_min >= g_max:
+        return None
     h = ldt.header
     i_mean = _mean_intensities(ldt)
     if i_mean is None:
         return None
-    g_rad = [math.radians(g) for g in h.g_angles]
-    g90 = math.pi / 2.0
-    phi_total = 0.0
-    phi_down = 0.0
-    for k in range(len(g_rad) - 1):
-        i_zone = (i_mean[k] + i_mean[k + 1]) / 2.0
-        omega = 2.0 * math.pi * abs(math.cos(g_rad[k]) - math.cos(g_rad[k + 1]))
-        phi_total += i_zone * omega
-        gk = h.g_angles[k]
-        gk1 = h.g_angles[k + 1]
-        if gk1 <= 90.0:
-            phi_down += i_zone * omega
-        elif gk < 90.0:
-            omega_down = 2.0 * math.pi * abs(math.cos(g_rad[k]) - math.cos(g90))
-            phi_down += i_zone * omega_down
-    if phi_total == 0.0:
+    g_angles = h.g_angles
+    ng = len(g_angles)
+    if g_max <= g_angles[0] or g_min >= g_angles[-1]:
+        return 0.0
+    phi = 0.0
+    for k in range(ng - 1):
+        gk = g_angles[k]
+        gk1 = g_angles[k + 1]
+        if gk1 <= g_min or gk >= g_max:
+            continue
+        lo = max(gk, g_min)
+        hi = min(gk1, g_max)
+        span = gk1 - gk
+        i_lo = i_mean[k] if lo == gk else i_mean[k] + (i_mean[k + 1] - i_mean[k]) * (lo - gk) / span
+        i_hi = i_mean[k + 1] if hi == gk1 else i_mean[k] + (i_mean[k + 1] - i_mean[k]) * (hi - gk) / span
+        i_zone = (i_lo + i_hi) / 2.0
+        omega = 2.0 * math.pi * abs(math.cos(math.radians(lo)) - math.cos(math.radians(hi)))
+        phi += i_zone * omega
+    return phi
+
+
+def dff_computed(ldt: Ldt) -> float | None:
+    """Return downward flux fraction computed from the intensity matrix, in %.
+
+    Downward hemisphere: gamma in [0°, 90°] (nadir to horizontal).
+    Returns None if the total flux is zero or the matrix is empty.
+    """
+    phi_total = luminous_flux(ldt)
+    if phi_total is None or phi_total == 0.0:
+        return None
+    phi_down = luminous_flux_range(ldt, 0.0, 90.0)
+    if phi_down is None:
         return None
     return phi_down / phi_total * 100.0
 

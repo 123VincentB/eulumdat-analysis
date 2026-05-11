@@ -16,6 +16,7 @@ Developed in an ISO 17025 accredited photometry laboratory.
 - `half_angle` — half-angle at half maximum (HAHM) per C-plane, with CubicSpline interpolation
 - `resample` — resample a `Ldt` to a coarser angular resolution (linear interpolation, ISO 17025 traceable)
 - `luminous_flux` — total flux in lm/klm by trapezoidal integration (CIE 190 method)
+- `luminous_flux_range` — flux integrated over an arbitrary gamma window [g_min, g_max] in lm/klm
 - `lorl_computed` — LORL in % computed from the intensity matrix
 - `dff_computed` — downward flux fraction in % computed from the intensity matrix
 - `check_photometric_consistency` — compare matrix-computed LORL and DFF against header declared values
