@@ -75,6 +75,7 @@ report = check_photometric_consistency(ldt)
 |------|-------------|
 | [`examples/01_basic_usage.md`](https://github.com/123VincentB/eulumdat-analysis/blob/main/examples/01_basic_usage.md) | `half_angle` — basic usage, return values, FWHM |
 | [`examples/02_resample.md`](https://github.com/123VincentB/eulumdat-analysis/blob/main/examples/02_resample.md) | `resample` — resolution resampling, guards, preserved fields |
+| [`examples/03_luminous_flux_range.md`](https://github.com/123VincentB/eulumdat-analysis/blob/main/examples/03_luminous_flux_range.md) | `luminous_flux_range` — flux over arbitrary gamma window, edge cases |
 
 ---
 
@@ -90,7 +91,8 @@ eulumdat-analysis/
 │       └── flux.py
 ├── examples/
 │   ├── 01_basic_usage.md
-│   └── 02_resample.md
+│   ├── 02_resample.md
+│   └── 03_luminous_flux_range.md
 ├── tests/
 │   ├── test_half_angle.py
 │   ├── test_resample.py
